@@ -297,9 +297,11 @@ export const Lobby: React.FC<LobbyProps> = ({
   const self = roomState.players.find((p) => p.id === playerId);
   const isHost = self?.isHost || false;
   const isSoloMode = roomState.gameMode === "SOLO";
+  const isTimerMode = roomState.gameMode === "TIMER";
+  const isIndividualMode = isSoloMode || isTimerMode;
   
-  // In solo mode, players are immediately ready. In competition mode, they must toggle.
-  const allReady = isSoloMode ? true : roomState.players.every((p) => p.isReady);
+  // In solo & timer mode, players are immediately ready. In competition mode, they must toggle.
+  const allReady = isIndividualMode ? true : roomState.players.every((p) => p.isReady);
 
   return (
     <div className="w-full max-w-4xl mx-auto py-6 px-4">
@@ -319,9 +321,9 @@ export const Lobby: React.FC<LobbyProps> = ({
                 <h1 className="text-3xl font-display font-black text-high-black mt-1">대기실 로비</h1>
                 <div className="mt-1">
                   <span className={`inline-block text-[10px] px-2.5 py-1 rounded-full font-black border-2 border-high-black ${
-                    isSoloMode ? "bg-high-black text-white" : "bg-purple-100 text-purple-900"
+                    isSoloMode ? "bg-high-black text-white" : isTimerMode ? "bg-emerald-100 text-emerald-950" : "bg-purple-100 text-purple-900"
                   }`}>
-                    {isSoloMode ? "🎯 개인 모드 (Solo Mode)" : "⚔️ 경쟁 모드 (Competition)"}
+                    {isSoloMode ? "🎯 개인 모드 (Solo Mode)" : isTimerMode ? "⏱️ 타이머 모드 (Timer Mode)" : "⚔️ 경쟁 모드 (Competition)"}
                   </span>
                 </div>
               </div>
@@ -360,8 +362,14 @@ export const Lobby: React.FC<LobbyProps> = ({
               {isSoloMode ? (
                 /* SOLO MODE CONFIG */
                 <div className="korean-wrap p-2 text-sm text-high-black/70 leading-relaxed font-semibold">
-                  <span className="block font-black text-high-black mb-1">🎯 30스테이지 하이브리드 코스</span>
-                  개인 모드에서는 라운드가 넘어갈수록 난이도가 점진적으로 상승하는 30개의 퍼즐 스테이지로 작동합니다. 대기자 모두가 들어오면 아래 버튼으로 즉시 세션을 시작할 수 있습니다.
+                  <span className="block font-black text-high-black mb-1">🎯 300스테이지 하이브리드 코스</span>
+                  개인 모드에서는 라운드가 넘어갈수록 난이도가 점진적으로 상승하는 300개의 퍼즐 스테이지로 작동합니다. 대기자 모두가 들어오면 아래 버튼으로 즉시 세션을 시작할 수 있습니다.
+                </div>
+              ) : isTimerMode ? (
+                /* TIMER MODE CONFIG */
+                <div className="korean-wrap p-2 text-sm text-high-black/70 leading-relaxed font-semibold">
+                  <span className="block font-black text-high-black mb-1">⏱️ 10분 타이머 서바이벌 챌린지</span>
+                  10분간 연속해서 랜덤 퍼즐을 해결합니다. 퍼즐을 풀 때마다 점수를 획득하며 추가 럭키 찬스 보석 획득 상자도 등장합니다! 방장이 시작 버튼을 누르면 즉시 전체 타이머 매치가 작동합니다.
                 </div>
               ) : (
                 /* COMPETITION CONFIG */
@@ -427,7 +435,7 @@ export const Lobby: React.FC<LobbyProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Toggle Ready (only for competition mode student players) */}
-            {!isSoloMode && (
+            {!isIndividualMode && (
               <button
                 onClick={() => {
                   synth.playClick();
@@ -449,7 +457,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 disabled={!allReady}
                 onClick={() => {
                   synth.playClick();
-                  onStartGame(isSoloMode ? 30 : maxRounds);
+                  onStartGame(isIndividualMode ? 300 : maxRounds);
                 }}
                 className={`flex-1 py-4.5 rounded-2xl font-black text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   allReady
@@ -457,20 +465,20 @@ export const Lobby: React.FC<LobbyProps> = ({
                     : "bg-high-alpha border-2 border-high-black/20 text-high-black/30 cursor-not-allowed"
                 }`}
               >
-                <Play className="w-4 h-4 fill-current" /> {isSoloMode ? "개인 모드 세션 시작! 🚀" : "경쟁 모드 매치 시작! ⚔️"}
+                <Play className="w-4 h-4 fill-current" /> {isSoloMode ? "개인 모드 세션 시작! 🚀" : isTimerMode ? "타이머 모드 시작! ⏱️" : "경쟁 모드 매치 시작! ⚔️"}
               </button>
             )}
           </div>
           
-          {!allReady && isHost && !isSoloMode && (
+          {!allReady && isHost && !isIndividualMode && (
             <p className="text-center text-xs text-high-black/50 font-bold font-semibold korean-wrap">
               * 모든 참여자가 준비 상태여야 게임을 시작할 수 있습니다.
             </p>
           )}
 
-          {isSoloMode && !isHost && (
+          {isIndividualMode && !isHost && (
             <div className="p-4 bg-zinc-100 border-2 border-high-black rounded-2xl text-high-black text-xs text-center font-bold animate-pulse korean-wrap">
-              🕰️ 교사(방장)가 개인 모드 세션을 시작하기를 대기하고 있습니다...
+              🕰️ 교사(방장)가 게임 세션을 시작하기를 대기하고 있습니다...
             </div>
           )}
         </div>

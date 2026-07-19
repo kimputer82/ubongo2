@@ -413,10 +413,10 @@ export default function App() {
     );
 
     // Auto-verify if all pieces are placed
-    const isSolo = roomState?.gameMode === "SOLO";
+    const isSolo = roomState?.gameMode === "SOLO" || roomState?.gameMode === "TIMER";
     const selfPlayer = roomState?.players.find((p) => p.id === playerId);
     const currentBoard = isSolo
-      ? (selfPlayer ? (roomState?.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || 1) - 1]) : null)
+      ? (selfPlayer ? (roomState?.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1]) : null)
       : (roomState?.currentBoard || BOARDS.find((b) => b.id === roomState?.currentBoardId));
 
     if (currentBoard && updatedPlacements.length === currentBoard.solutionPieceIds.length) {
@@ -465,10 +465,10 @@ export default function App() {
     if (!muted) synth.playClick();
 
     // Reset rotation to original piece orientations
-    const isSolo = roomState?.gameMode === "SOLO";
+    const isSolo = roomState?.gameMode === "SOLO" || roomState?.gameMode === "TIMER";
     const selfPlayer = roomState?.players.find((p) => p.id === playerId);
     const currentBoard = isSolo
-      ? (selfPlayer ? (roomState?.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || 1) - 1]) : null)
+      ? (selfPlayer ? (roomState?.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1]) : null)
       : (roomState?.currentBoard || BOARDS.find((b) => b.id === roomState?.currentBoardId));
 
     if (currentBoard) {

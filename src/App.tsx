@@ -423,37 +423,37 @@ export default function App() {
   return (
     <div className="min-h-screen bg-high-bg text-high-black flex flex-col font-sans select-none overflow-x-hidden pb-12">
       {/* Upper Navigation / Title Header */}
-      <header className="border-b-4 border-high-black bg-high-surface shadow-sm sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-high-black flex items-center justify-center font-black text-white text-xl border-2 border-high-black -rotate-6 shadow-[3px_3px_0px_#18181b]">
+      <header className="border-b-4 border-high-black bg-high-surface shadow-sm sticky top-0 z-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-high-black flex items-center justify-center font-black text-white text-lg sm:text-xl border-2 border-high-black -rotate-6 shadow-[3px_3px_8px_rgba(0,0,0,0.15)] flex-shrink-0">
             우
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-display font-black tracking-tighter text-high-black">
+          <div className="flex flex-col min-w-0">
+            <h1 className="text-lg sm:text-2xl font-display font-black tracking-tighter text-high-black truncate">
               UBONGO! 우봉고
             </h1>
-            <span className="text-[10px] uppercase tracking-[0.25em] font-black text-high-black/40 -mt-0.5 ml-0.5">
+            <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] font-black text-high-black/40 -mt-0.5 ml-0.5">
               Multiplayer Edition
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
           {/* Mute Toggle */}
           <button
             onClick={() => setMuted(!muted)}
-            className="p-2.5 bg-high-surface border-2 border-high-black hover:bg-high-bg rounded-2xl text-high-black transition-all cursor-pointer shadow-[3px_3px_0px_#18181b] hover:shadow-[1px_1px_0px_#18181b] active:translate-y-0.5"
+            className="p-2 sm:p-2.5 bg-high-surface border-2 border-high-black hover:bg-high-bg rounded-2xl text-high-black transition-all cursor-pointer shadow-[3px_3px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.08)] active:translate-y-0.5"
             title={muted ? "음소거 해제" : "음소거"}
           >
-            {muted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            {muted ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
 
           {roomState && (
             <button
               onClick={handleLeaveRoom}
-              className="flex items-center gap-1.5 text-xs font-black text-white bg-high-black hover:bg-zinc-800 px-4 py-2.5 rounded-2xl transition-all shadow-[3px_3px_0px_#18181b] active:shadow-none active:translate-y-[3px] cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-black text-white bg-high-black hover:bg-zinc-800 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl transition-all shadow-[3px_3px_8px_rgba(0,0,0,0.15)] active:shadow-sm active:translate-y-[2px] cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> 방 나가기
+              <ArrowLeft className="w-3.5 h-3.5" /> <span className="hidden sm:inline">방 나가기</span><span className="sm:hidden">나가기</span>
             </button>
           )}
         </div>
@@ -920,8 +920,7 @@ export default function App() {
 
                         {/* Selected Piece Actions & Reset */}
                         <div className="md:col-span-2 flex flex-col gap-4">
-                          <div className="bg-high-surface high-border p-6 rounded-3xl flex flex-col items-center justify-center gap-5 text-center min-h-[240px] high-shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-high-black" />
+                          <div className="bg-high-surface high-border p-5 sm:p-6 rounded-3xl flex flex-col items-center justify-center gap-5 text-center min-h-[200px] high-shadow-sm">
                             {selectedPieceId !== null ? (
                               <>
                                 <span className="text-[10px] font-black text-high-black uppercase tracking-widest bg-art-accent/20 px-2.5 py-1 rounded-full border-2 border-high-black font-mono">
@@ -1145,8 +1144,7 @@ export default function App() {
                     {/* Right Column: Active hand piece controls & Piece details */}
                     <div className="md:col-span-2 flex flex-col gap-4">
                       {/* Active Selected Piece Manipulator Panel */}
-                      <div className="bg-high-surface high-border p-6 rounded-3xl flex flex-col items-center justify-center gap-5 text-center min-h-[240px] high-shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-high-black" />
+                      <div className="bg-high-surface high-border p-5 sm:p-6 rounded-3xl flex flex-col items-center justify-center gap-5 text-center min-h-[200px] high-shadow-sm">
                         {selectedPieceId !== null ? (
                           <>
                             <span className="text-[10px] font-black text-high-black uppercase tracking-widest bg-art-accent/20 px-2.5 py-1 rounded-full border-2 border-high-black font-mono">

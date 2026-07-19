@@ -300,18 +300,17 @@ export const Lobby: React.FC<LobbyProps> = ({
   const allReady = isSoloMode ? true : roomState.players.every((p) => p.isReady);
 
   return (
-    <div className="max-w-3xl mx-auto py-6 px-4">
+    <div className="w-full max-w-4xl mx-auto py-6 px-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Side: Lobby Details & Settings */}
         <div className="md:col-span-2 flex flex-col gap-6">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-high-surface high-border p-6 rounded-3xl high-shadow flex flex-col gap-4 relative overflow-hidden"
+            className="bg-high-surface high-border p-5 sm:p-6 rounded-3xl high-shadow flex flex-col gap-4"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-high-black" />
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
                 <span className="text-[10px] font-black text-high-black/40 uppercase tracking-widest font-mono">
                   MULTIPL_ROOM_CONNECTED
                 </span>
@@ -326,7 +325,7 @@ export const Lobby: React.FC<LobbyProps> = ({
               </div>
 
               {/* Room Code with Copy Button */}
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-end flex-shrink-0">
                 <span className="text-[10px] text-high-black/40 uppercase font-black tracking-widest font-mono">
                   ROOM CODE
                 </span>
@@ -349,7 +348,7 @@ export const Lobby: React.FC<LobbyProps> = ({
           </motion.div>
 
           {/* Game Parameters */}
-          <div className="bg-high-surface high-border p-6 rounded-3xl high-shadow-sm flex flex-col gap-5 relative overflow-hidden">
+          <div className="bg-high-surface high-border p-5 sm:p-6 rounded-3xl high-shadow-sm flex flex-col gap-5">
             <h3 className="text-xs font-black tracking-widest text-high-black/50 uppercase flex items-center gap-2 border-b-2 border-high-black pb-3 font-mono">
               <Settings className="w-4 h-4 text-high-black" />
               <span>⚙️ MATCH SETUP & CONFIG</span>
@@ -476,8 +475,7 @@ export const Lobby: React.FC<LobbyProps> = ({
 
         {/* Right Side: Players List with status */}
         <div className="flex flex-col gap-4">
-          <div className="bg-high-surface high-border p-6 rounded-3xl high-shadow-sm flex flex-col gap-4 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-high-black" />
+          <div className="bg-high-surface high-border p-5 sm:p-6 rounded-3xl high-shadow-sm flex flex-col gap-4">
             <h3 className="text-xs font-black tracking-widest text-high-black/50 uppercase flex items-center gap-2 pb-2 border-b-2 border-high-black/15 font-mono">
               <Users className="w-3.5 h-3.5 text-high-black/40" />
               <span>WAITING PLAYERS ({roomState.players.length})</span>
@@ -489,15 +487,15 @@ export const Lobby: React.FC<LobbyProps> = ({
                   key={p.id}
                   className="flex items-center justify-between p-3.5 bg-high-surface rounded-2xl border-2 border-high-black transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-high-black border-2 border-high-black flex items-center justify-center text-sm font-black text-white font-mono shadow-sm">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-high-black border-2 border-high-black flex items-center justify-center text-sm font-black text-white font-mono shadow-sm flex-shrink-0">
                       {p.name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       <span className="text-xs font-black text-high-black flex items-center gap-1.5 flex-wrap">
-                        {p.name}
+                        <span className="truncate max-w-[100px]">{p.name}</span>
                         {p.isHost && (
-                          <span className="text-[9px] bg-art-accent/30 border border-high-black text-high-black px-1.5 py-0.5 rounded font-black">
+                          <span className="text-[9px] bg-art-accent/30 border border-high-black text-high-black px-1.5 py-0.5 rounded font-black flex-shrink-0">
                             {isSoloMode ? "교사" : "방장"}
                           </span>
                         )}

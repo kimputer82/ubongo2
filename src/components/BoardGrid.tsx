@@ -211,8 +211,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 p-6 bg-high-surface high-border rounded-[32px] high-shadow relative overflow-visible">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-high-black rounded-t-[32px]" />
+    <div className="w-full flex flex-col items-center gap-6 p-6 bg-high-surface high-border rounded-[32px] high-shadow relative overflow-visible">
       <div className="text-center korean-wrap">
         <h2 className="text-2xl font-display font-black text-high-black tracking-tight">{board.name}</h2>
         <div className="flex items-center justify-center mt-2">
@@ -314,7 +313,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
       </div>
 
       {/* Guide controls */}
-      <div className="flex flex-col gap-3 text-center w-full max-w-sm bg-high-alpha p-4 rounded-2xl border-2 border-high-black/25">
+      <div className="flex flex-col gap-3 text-center w-full bg-high-alpha p-4 rounded-2xl border-2 border-high-black/25">
         <div className="text-xs korean-wrap font-semibold text-high-black">
           {selectedPieceId !== null ? (
             <p className="animate-pulse text-high-black font-black tracking-tight">
@@ -324,7 +323,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
             <p className="text-high-black/70 font-medium">배치된 조각을 클릭하면 다시 손으로 회수합니다.</p>
           )}
         </div>
-        <div className="flex items-center justify-center gap-2 text-[10px] text-high-black/60 font-black uppercase tracking-wider font-mono">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] text-high-black/60 font-black uppercase tracking-wider font-mono">
           <span className="bg-high-surface px-2 py-1 rounded border border-high-black/20">R: 회전</span>
           <span className="bg-high-surface px-2 py-1 rounded border border-high-black/20">F: 대칭</span>
           <span className="bg-high-surface px-2 py-1 rounded border border-high-black/20">ESC: 해제</span>

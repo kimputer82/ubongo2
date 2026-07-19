@@ -78,10 +78,10 @@ export default function App() {
   // Initialize piece cells when a new board starts
   useEffect(() => {
     if (roomState && roomState.state === "PLAYING") {
-      const isSolo = roomState.gameMode === "SOLO";
+      const isSolo = roomState.gameMode === "SOLO" || roomState.gameMode === "TIMER";
       const selfPlayer = roomState.players.find((p) => p.id === playerId);
       const currentBoard = isSolo
-        ? (selfPlayer ? (roomState.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || 1) - 1]) : null)
+        ? (selfPlayer ? (roomState.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1]) : null)
         : (roomState.currentBoard || BOARDS.find((b) => b.id === roomState.currentBoardId));
 
       if (currentBoard) {
@@ -95,12 +95,12 @@ export default function App() {
         setRotatedCells(initialRotations);
         setPlacedPieces([]);
         setSelectedPieceId(null);
-        if (isSolo) {
+        if (roomState.gameMode === "SOLO") {
           setSoloTimer(120);
         }
       }
     }
-  }, [roomState?.currentBoardId, roomState?.state, roomState?.gameMode, playerId, roomState?.players.find((p) => p.id === playerId)?.soloRound]);
+  }, [roomState?.currentBoardId, roomState?.state, roomState?.gameMode, playerId, roomState?.players.find((p) => p.id === playerId)?.soloRound, roomState?.players.find((p) => p.id === playerId)?.timerRound]);
 
   // Handle local Solo Mode Timer countdown
   useEffect(() => {
@@ -175,7 +175,7 @@ export default function App() {
   }, [roomState?.firstSolvedByName, roomState?.state, muted]);
 
   // Connect and manage WebSocket
-  const connectToWebSocket = (name: string, roomCode: string, password?: string, gameMode?: "SOLO" | "COMPETITION") => {
+  const connectToWebSocket = (name: string, roomCode: string, password?: string, gameMode?: "SOLO" | "COMPETITION" | "TIMER") => {
     setErrorMsg(null);
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}`;
@@ -337,7 +337,7 @@ export default function App() {
   };
 
   // Lobby triggers
-  const handleJoinRoom = (name: string, roomCode: string, password?: string, gameMode?: "SOLO" | "COMPETITION") => {
+  const handleJoinRoom = (name: string, roomCode: string, password?: string, gameMode?: "SOLO" | "COMPETITION" | "TIMER") => {
     connectToWebSocket(name, roomCode, password, gameMode);
   };
 
@@ -409,6 +409,7 @@ export default function App() {
           },
         })
       );
+      // In timer mode, we play success sound and auto-advance when verified (wait, server sends message or we do next stage)
     }
   };
 
@@ -477,6 +478,16 @@ export default function App() {
     socketRef.current?.send(JSON.stringify({ type: "restart-lobby" }));
   };
 
+  const handleEndGame = () => {
+    socketRef.current?.send(JSON.stringify({ type: "end-game" }));
+  };
+
+  const handleNextTimerStage = () => {
+    setPlacedPieces([]);
+    setSelectedPieceId(null);
+    socketRef.current?.send(JSON.stringify({ type: "next-timer-stage" }));
+  };
+
   const handleLeaveRoom = () => {
     socketRef.current?.close();
     setRoomState(null);
@@ -484,12 +495,13 @@ export default function App() {
   };
 
   // Calculate current board info
-  const isSoloMode = roomState?.gameMode === "SOLO";
+  const isSoloMode = roomState?.gameMode === "SOLO" || roomState?.gameMode === "TIMER";
+  const isTimerMode = roomState?.gameMode === "TIMER";
   const selfPlayer = roomState && playerId ? roomState.players.find((p) => p.id === playerId) : null;
   const isTeacher = selfPlayer?.isTeacher === true;
   const activeBoard = roomState
     ? (isSoloMode
-        ? (selfPlayer ? (roomState.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || 1) - 1]) : null)
+        ? (selfPlayer ? (roomState.soloBoards ? roomState.soloBoards[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1] : SOLO_BOARDS[(selfPlayer.soloRound || selfPlayer.timerRound || 1) - 1]) : null)
         : (roomState.currentBoard || BOARDS.find((b) => b.id === roomState.currentBoardId)))
     : null;
 
@@ -808,23 +820,27 @@ export default function App() {
                       <div className="bg-high-surface high-border p-5 rounded-3xl high-shadow flex flex-col gap-4">
                         <div className="border-b-2 border-high-black pb-3">
                           <h3 className="text-xs font-black tracking-wider text-high-black/60 uppercase font-mono">
-                            📊 MY SOLO CHALLENGE
+                            {isTimerMode ? "⏱️ TIMER MODE STATS" : "📊 MY SOLO CHALLENGE"}
                           </h3>
                         </div>
 
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-high-black/60">현재 단계:</span>
-                            <span className="text-sm font-black font-mono text-high-black">{selfPlayer?.soloRound} / {roomState?.maxRounds || 300} Stage</span>
+                            <span className="text-xs font-semibold text-high-black/60">{isTimerMode ? "해결한 퍼즐 수:" : "현재 단계:"}</span>
+                            <span className="text-sm font-black font-mono text-high-black">
+                              {isTimerMode ? `${selfPlayer?.timerSolved || 0} 개` : `${selfPlayer?.soloRound} / ${roomState?.maxRounds || 300} Stage`}
+                            </span>
                           </div>
 
-                          {/* Progress bar */}
-                          <div className="w-full bg-high-alpha rounded-full h-3 border border-high-black overflow-hidden">
-                            <div
-                              className="bg-art-accent h-full border-r border-high-black transition-all duration-300"
-                              style={{ width: `${Math.round(((selfPlayer?.soloRound || 1) / (roomState?.maxRounds || 300)) * 100)}%` }}
-                            />
-                          </div>
+                          {/* Progress bar (Only for SOLO mode) */}
+                          {!isTimerMode && (
+                            <div className="w-full bg-high-alpha rounded-full h-3 border border-high-black overflow-hidden">
+                              <div
+                                className="bg-art-accent h-full border-r border-high-black transition-all duration-300"
+                                style={{ width: `${Math.round(((selfPlayer?.soloRound || 1) / (roomState?.maxRounds || 300)) * 100)}%` }}
+                              />
+                            </div>
+                          )}
 
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-xs font-semibold text-high-black/60 font-mono">TOTAL SCORE:</span>
@@ -856,19 +872,23 @@ export default function App() {
                         <div className="flex items-center gap-4">
                           <div className="bg-high-black text-white px-4 py-2.5 rounded-2xl text-center min-w-[85px] border border-high-black">
                             <span className="block text-[10px] text-white/60 font-black uppercase tracking-wider font-mono">
-                              STAGE
+                              {isTimerMode ? "ROUND" : "STAGE"}
                             </span>
                             <strong className="text-2xl font-black text-art-accent font-mono block -mt-1">
-                              {selfPlayer?.soloRound} <span className="text-white/40 text-xs font-normal">/ {roomState?.maxRounds || 300}</span>
+                              {isTimerMode ? selfPlayer?.timerRound : selfPlayer?.soloRound} {!isTimerMode && <span className="text-white/40 text-xs font-normal">/ {roomState?.maxRounds || 300}</span>}
                             </strong>
                           </div>
 
                           <div className="korean-wrap">
                             <h2 className="text-xl font-display font-black text-high-black flex items-center gap-2">
-                              <Sparkles className="w-5 h-5 text-art-accent animate-pulse" /> 스테이지 모양 맞추기!
+                              <Sparkles className="w-5 h-5 text-art-accent animate-pulse" /> 모양을 맞추세요!
                             </h2>
                             <p className="text-xs text-high-black/60 mt-0.5 font-medium leading-relaxed">
-                              {selfPlayer?.soloSolved ? (
+                              {isTimerMode ? (
+                                selfPlayer?.soloSolved ? (
+                                  <span className="text-emerald-600 font-black animate-pulse">🎉 퍼즐 돌파 성공! 10초 보너스를 획득했습니다!</span>
+                                ) : "무한 제공되는 랜덤 퍼즐을 해결하여 고득점에 도전하세요!"
+                              ) : selfPlayer?.soloSolved ? (
                                 <span className="text-emerald-600 font-black animate-pulse">
                                   🎉 퍼즐 완성 돌파 성공! (다음 단계를 클릭하세요!)
                                 </span>
@@ -883,19 +903,28 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* Local Countdown Clock */}
+                        {/* Local Countdown Clock / Global 10-Minute Timer Clock */}
                         <div className="flex items-center gap-4 bg-high-alpha border-2 border-high-black px-5 py-2.5 rounded-2xl justify-between md:justify-end">
                           <div className="flex flex-col text-right">
                             <span className="text-[9px] text-high-black/50 font-black uppercase tracking-widest font-mono">
-                              스테이지 남은 시간 (STAGE TIMER)
+                              {isTimerMode ? "전체 남은 시간 (TOTAL TIME)" : "스테이지 남은 시간 (STAGE TIMER)"}
                             </span>
                             <span
                               className={`text-lg font-mono font-black tracking-tighter ${
-                                soloTimer <= 15 ? "text-red-600 animate-pulse" : "text-high-black"
+                                (isTimerMode ? (roomState?.timerModeTimeLeft || 0) : soloTimer) <= 15 ? "text-red-600 animate-pulse" : "text-high-black"
                               }`}
                             >
-                              {Math.floor(soloTimer / 60)}:
-                              {String(soloTimer % 60).padStart(2, "0")}
+                              {isTimerMode ? (
+                                <>
+                                  {Math.floor((roomState?.timerModeTimeLeft || 0) / 60)}:
+                                  {String((roomState?.timerModeTimeLeft || 0) % 60).padStart(2, "0")}
+                                </>
+                              ) : (
+                                <>
+                                  {Math.floor(soloTimer / 60)}:
+                                  {String(soloTimer % 60).padStart(2, "0")}
+                                </>
+                              )}
                             </span>
                           </div>
 
@@ -918,13 +947,13 @@ export default function App() {
                                 strokeWidth="4"
                                 fill="transparent"
                                 strokeDasharray="150.8"
-                                strokeDashoffset={150.8 - (Math.min(soloTimer, 120) / 120) * 150.8}
-                                className={soloTimer <= 15 ? "text-red-500" : "text-high-black"}
+                                strokeDashoffset={150.8 - (Math.min((isTimerMode ? (roomState?.timerModeTimeLeft || 0) : soloTimer), isTimerMode ? 600 : 120) / (isTimerMode ? 600 : 120)) * 150.8}
+                                className={(isTimerMode ? (roomState?.timerModeTimeLeft || 0) : soloTimer) <= 15 ? "text-red-500" : "text-high-black"}
                               />
                             </svg>
                             <div className="absolute flex flex-col items-center justify-center">
                               <span className="text-xs font-mono font-black text-high-black">
-                                {soloTimer}
+                                {isTimerMode ? (roomState?.timerModeTimeLeft || 0) : soloTimer}
                               </span>
                             </div>
                           </div>
@@ -953,17 +982,17 @@ export default function App() {
                               <div className="korean-wrap">
                                 <h3 className="text-2xl font-black text-emerald-800">우봉고 돌파 성공!</h3>
                                 <p className="text-sm font-semibold text-high-black/70 mt-1">
-                                  {120 - soloTimer}초 만에 완료하여 보석 획득!
+                                  {isTimerMode ? "보석을 획득하였습니다! 다음 퍼즐에 도전하세요!" : `${120 - soloTimer}초 만에 완료하여 보석 획득!`}
                                 </p>
                               </div>
 
                               <button
-                                onClick={() => {
+                                onClick={isTimerMode ? handleNextTimerStage : () => {
                                   socketRef.current?.send(JSON.stringify({ type: "next-solo-stage" }));
                                 }}
                                 className="high-button-primary animate-bounce px-8 py-4 text-base font-black tracking-wide cursor-pointer"
                               >
-                                다음 단계 도전하기 ➡️
+                                {isTimerMode ? "다음 랜덤 퍼즐 풀기 ➡️" : "다음 단계 도전하기 ➡️"}
                               </button>
                             </div>
                           )}
@@ -1063,24 +1092,6 @@ export default function App() {
                                 >
                                   <RefreshCw className="w-4 h-4" /> 보드 전체 초기화 (Reset)
                                 </button>
-
-                                {/* Piece Tray (Moved to Right Sidebar) */}
-                                <div className="bg-high-alpha border-2 border-high-black p-3.5 rounded-[20px]">
-                                  <PieceTray
-                                    pieceIds={activeBoard.solutionPieceIds}
-                                    selectedPieceId={selectedPieceId}
-                                    placedPieceIds={placedPieces.map((p) => p.pieceId)}
-                                    onSelect={(pId) => {
-                                      if (selectedPieceId === pId) {
-                                        setSelectedPieceId(null);
-                                      } else {
-                                        setSelectedPieceId(pId);
-                                      }
-                                    }}
-                                    rotatedCells={rotatedCells}
-                                    onDragStart={handleDragStart}
-                                  />
-                                </div>
                               </>
                             ) : (
                               <div className="flex flex-col items-center justify-center p-4 korean-wrap">
@@ -1095,6 +1106,24 @@ export default function App() {
                                 </p>
                               </div>
                             )}
+                          </div>
+
+                          {/* Piece Tray — always visible in sidebar regardless of selection */}
+                          <div className="bg-high-alpha border-2 border-high-black p-3.5 rounded-[20px]">
+                            <PieceTray
+                              pieceIds={activeBoard.solutionPieceIds}
+                              selectedPieceId={selectedPieceId}
+                              placedPieceIds={placedPieces.map((p) => p.pieceId)}
+                              onSelect={(pId) => {
+                                if (selectedPieceId === pId) {
+                                  setSelectedPieceId(null);
+                                } else {
+                                  setSelectedPieceId(pId);
+                                }
+                              }}
+                              rotatedCells={rotatedCells}
+                              onDragStart={handleDragStart}
+                            />
                           </div>
                         </div>
                       </div>
@@ -1126,10 +1155,10 @@ export default function App() {
                   <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-5 bg-high-surface high-border rounded-3xl gap-4 high-shadow">
                     <div className="flex items-center gap-4">
                       <div className="bg-high-black text-white px-4 py-2.5 rounded-2xl text-center min-w-[85px] border border-high-black">
-                        <span className="block text-[10px] text-white/60 font-black uppercase tracking-wider font-mono">
+                        <span className="block text-[10px] text-white/60 font-black uppercase tracking-wider font-mono whitespace-nowrap">
                           ROUND
                         </span>
-                        <strong className="text-2xl font-black text-art-accent font-mono block -mt-1">
+                        <strong className="text-2xl font-black text-art-accent font-mono block -mt-1 whitespace-nowrap">
                           {roomState.round} <span className="text-white/40 text-xs font-normal">/ {roomState.maxRounds}</span>
                         </strong>
                       </div>
@@ -1196,6 +1225,17 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Teacher: End Game Button */}
+                    {isTeacher && (
+                      <button
+                        onClick={handleEndGame}
+                        className="high-button-white px-4 py-2.5 text-xs flex items-center gap-1.5 cursor-pointer text-red-600 hover:text-red-700 border-red-300 whitespace-nowrap"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+                        게임 종료
+                      </button>
+                    )}
                   </div>
 
                   {/* Sub-Workspace Layout */}

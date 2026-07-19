@@ -314,7 +314,7 @@ wss.on("connection", (ws: WebSocket) => {
 
             // Create a new room
             code = generateRoomCode();
-            const maxRounds = gameMode === "SOLO" ? 300 : 5;
+            const maxRounds = gameMode === "SOLO" ? 300 : gameMode === "TIMER" ? 999 : 5;
 
             const newRoomState: RoomState = {
               code,
@@ -480,6 +480,39 @@ wss.on("connection", (ws: WebSocket) => {
               p.score = 0;
             });
             broadcastRoom(room);
+          } else if (room.state.gameMode === "TIMER") {
+            // Timer Mode: 10 minutes countdown, continuous puzzle supply
+            room.state.state = "PLAYING";
+            room.state.timerModeTimeLeft = 600; // 10 minutes
+            room.state.players.forEach((p) => {
+              p.timerRound = 1;
+              p.timerSolved = 0;
+              p.timerScore = 0;
+              p.placedPieces = [];
+              p.score = 0;
+            });
+            // Generate first board for each player
+            if (!room.state.soloBoards) room.state.soloBoards = [];
+            const difficulties: Array<'EASY' | 'MEDIUM' | 'HARD'> = ['EASY', 'MEDIUM', 'HARD'];
+            const firstDiff = difficulties[Math.floor(Math.random() * difficulties.length)];
+            room.state.soloBoards[0] = generateUbongoPuzzle(firstDiff, 1);
+            broadcastRoom(room);
+
+            // Start the global 10-minute countdown
+            if (room.countdownInterval) clearInterval(room.countdownInterval);
+            room.countdownInterval = setInterval(() => {
+              if (room.state.state !== "PLAYING" || room.state.gameMode !== "TIMER") {
+                clearInterval(room.countdownInterval!);
+                return;
+              }
+              room.state.timerModeTimeLeft = (room.state.timerModeTimeLeft || 0) - 1;
+              if (room.state.timerModeTimeLeft <= 0) {
+                clearInterval(room.countdownInterval!);
+                room.state.timerModeTimeLeft = 0;
+                room.state.state = "ROUND_OVER";
+              }
+              broadcastRoom(room);
+            }, 1000);
           } else {
             room.state.maxRounds = payload.maxRounds || 5;
             startRound(room, 1);
@@ -669,6 +702,67 @@ wss.on("connection", (ws: WebSocket) => {
             p.solved = false;
             p.placedPieces = [];
           });
+          broadcastRoom(room);
+          break;
+        }
+
+        case "end-game": {
+          // Teacher/host can forcefully end the current game and return everyone to lobby
+          if (!currentRoomCode || !currentPlayerId) return;
+          const room = rooms.get(currentRoomCode);
+          if (!room) return;
+
+          const host = room.state.players.find((p) => p.id === currentPlayerId);
+          if (!host || !host.isHost) return;
+
+          if (room.countdownInterval) {
+            clearInterval(room.countdownInterval);
+            room.countdownInterval = undefined;
+          }
+
+          room.state.gameStarted = false;
+          room.state.state = "LOBBY";
+          room.state.round = 1;
+          room.state.timerModeTimeLeft = undefined;
+          room.state.players.forEach((p) => {
+            p.score = 0;
+            p.isReady = p.isHost;
+            p.solved = false;
+            p.placedPieces = [];
+            p.soloRound = 1;
+            p.soloSolved = false;
+            p.soloTimer = 120;
+            p.soloCompleted = false;
+            p.timerRound = 1;
+            p.timerSolved = 0;
+            p.timerScore = 0;
+          });
+          broadcastRoom(room);
+          break;
+        }
+
+        case "next-timer-stage": {
+          // Player solved a timer-mode puzzle, advance to next random puzzle
+          if (!currentRoomCode || !currentPlayerId) return;
+          const room = rooms.get(currentRoomCode);
+          if (!room || room.state.gameMode !== "TIMER" || room.state.state !== "PLAYING") return;
+
+          const player = room.state.players.find((p) => p.id === currentPlayerId);
+          if (!player) return;
+
+          const nextRound = (player.timerRound || 1) + 1;
+          player.timerRound = nextRound;
+          player.timerSolved = (player.timerSolved || 0) + 1;
+          player.placedPieces = [];
+
+          // Ensure a board exists for this round (random difficulty)
+          if (!room.state.soloBoards) room.state.soloBoards = [];
+          if (!room.state.soloBoards[nextRound - 1]) {
+            const diffs: Array<'EASY' | 'MEDIUM' | 'HARD'> = ['EASY', 'MEDIUM', 'HARD'];
+            const diff = diffs[Math.floor(Math.random() * diffs.length)];
+            room.state.soloBoards[nextRound - 1] = generateUbongoPuzzle(diff, nextRound);
+          }
+
           broadcastRoom(room);
           break;
         }

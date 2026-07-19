@@ -12,7 +12,7 @@ import { synth } from "../utils/audio.js";
 interface LobbyProps {
   roomState: RoomState | null;
   playerId: string | null;
-  onJoinRoom: (name: string, code: string, password?: string, gameMode?: "SOLO" | "COMPETITION") => void;
+  onJoinRoom: (name: string, code: string, password?: string, gameMode?: "SOLO" | "COMPETITION" | "TIMER") => void;
   onToggleReady: () => void;
   onAddBot: () => void;
   onStartGame: (maxRounds: number) => void;
@@ -39,7 +39,7 @@ export const Lobby: React.FC<LobbyProps> = ({
   // Teacher Form State
   const [teacherName, setTeacherName] = useState("");
   const [teacherPassword, setTeacherPassword] = useState("");
-  const [selectedMode, setSelectedMode] = useState<"SOLO" | "COMPETITION">("SOLO");
+  const [selectedMode, setSelectedMode] = useState<"SOLO" | "COMPETITION" | "TIMER">("SOLO");
 
   const [copied, setCopied] = useState(false);
   const [maxRounds, setMaxRounds] = useState(5);
@@ -204,53 +204,55 @@ export const Lobby: React.FC<LobbyProps> = ({
                 <label className="text-[10px] font-black text-high-black/50 uppercase tracking-widest font-mono">
                   룸 진행 모드 (SESSION MODE)
                 </label>
-                <div className="grid grid-cols-2 gap-2.5 bg-high-alpha p-1 rounded-2xl border-2 border-high-black">
+                <div className="grid grid-cols-3 gap-2 bg-high-alpha p-1 rounded-2xl border-2 border-high-black">
                   <button
                     type="button"
-                    onClick={() => {
-                      synth.playClick();
-                      setSelectedMode("SOLO");
-                    }}
-                    className={`py-3 text-xs font-black rounded-xl transition-all cursor-pointer ${
-                      selectedMode === "SOLO"
-                        ? "bg-high-black text-white shadow-sm"
-                        : "text-high-black/60 hover:text-high-black"
+                    onClick={() => { synth.playClick(); setSelectedMode("SOLO"); }}
+                    className={`py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
+                      selectedMode === "SOLO" ? "bg-high-black text-white shadow-sm" : "text-high-black/60 hover:text-high-black"
                     }`}
                   >
                     개인 모드
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      synth.playClick();
-                      setSelectedMode("COMPETITION");
-                    }}
-                    className={`py-3 text-xs font-black rounded-xl transition-all cursor-pointer ${
-                      selectedMode === "COMPETITION"
-                        ? "bg-high-black text-white shadow-sm"
-                        : "text-high-black/60 hover:text-high-black"
+                    onClick={() => { synth.playClick(); setSelectedMode("COMPETITION"); }}
+                    className={`py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
+                      selectedMode === "COMPETITION" ? "bg-high-black text-white shadow-sm" : "text-high-black/60 hover:text-high-black"
                     }`}
                   >
                     경쟁 모드
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => { synth.playClick(); setSelectedMode("TIMER"); }}
+                    className={`py-2.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
+                      selectedMode === "TIMER" ? "bg-high-black text-white shadow-sm" : "text-high-black/60 hover:text-high-black"
+                    }`}
+                  >
+                    ⏱️ 타이머
+                  </button>
                 </div>
-                
+
                 {/* Mode Explanation Panel */}
                 <div className="p-4 bg-high-black/5 border-2 border-high-black rounded-xl text-left">
                   {selectedMode === "SOLO" ? (
                     <div className="korean-wrap">
-                      <h5 className="text-xs font-black text-high-black flex items-center gap-1">
-                        🎯 개인 모드 (Solo Mode)
-                      </h5>
+                      <h5 className="text-xs font-black text-high-black flex items-center gap-1">🎯 개인 모드 (Solo Mode)</h5>
                       <p className="text-[11px] text-high-black/70 mt-1 leading-relaxed font-semibold">
-                        각 학생은 <strong>30스테이지 독립 하이브리드 코스</strong>를 개별 진도에 맞춰 완료합니다. 교사는 실시간 대시보드로 전체 참가자의 진도와 배치를 단방향으로 관제합니다.
+                        각 학생은 <strong>300스테이지 독립 하이브리드 코스</strong>를 개별 진도에 맞춰 완료합니다. 교사는 실시간 대시보드로 전체 참가자의 진도와 배치를 단방향으로 관제합니다.
+                      </p>
+                    </div>
+                  ) : selectedMode === "TIMER" ? (
+                    <div className="korean-wrap">
+                      <h5 className="text-xs font-black text-high-black flex items-center gap-1">⏱️ 타이머 모드 (Timer Mode)</h5>
+                      <p className="text-[11px] text-high-black/70 mt-1 leading-relaxed font-semibold">
+                        <strong>10분</strong> 동안 개별로 퍼즐을 풀며 점수를 쌓습니다. 퍼즐은 무한 제공되며 난이도는 랜덤입니다. 보너스 럭키박스도 등장합니다!
                       </p>
                     </div>
                   ) : (
                     <div className="korean-wrap">
-                      <h5 className="text-xs font-black text-high-black flex items-center gap-1">
-                        ⚔️ 경쟁 모드 (Competition Mode)
-                      </h5>
+                      <h5 className="text-xs font-black text-high-black flex items-center gap-1">⚔️ 경쟁 모드 (Competition Mode)</h5>
                       <p className="text-[11px] text-high-black/70 mt-1 leading-relaxed font-semibold">
                         기존의 우봉고 방식대로 진행됩니다. 모든 플레이어가 동일한 라운드 퍼즐에 동시 참여하며, 가장 빠르게 조합을 완성한 플레이어와 순위에 따라 보석(점수)을 획득합니다.
                       </p>

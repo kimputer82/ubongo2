@@ -40,10 +40,15 @@ export interface Player {
   isTeacher?: boolean; // True if this player is the teacher/admin
   
   // New properties for Solo Mode
-  soloRound?: number;        // e.g., 1 to 30
+  soloRound?: number;        // e.g., 1 to 300
   soloSolved?: boolean;      // current round solved state
   soloTimer?: number;        // current round timer remaining
-  soloCompleted?: boolean;   // if they completed all 30 stages!
+  soloCompleted?: boolean;   // if they completed all 300 stages!
+
+  // Properties for Timer Mode
+  timerRound?: number;       // current round in timer mode
+  timerSolved?: number;      // number of puzzles solved in timer mode
+  timerScore?: number;       // score accumulated in timer mode
 }
 
 export type RoomStatus = 'LOBBY' | 'PLAYING' | 'ROUND_OVER';
@@ -61,7 +66,8 @@ export interface RoomState {
   multiplayerBoards?: Board[];
   timer: number; // countdown in seconds
   firstSolvedByName?: string;
-  gameMode?: "SOLO" | "COMPETITION";
+  gameMode?: "SOLO" | "COMPETITION" | "TIMER";
+  timerModeTimeLeft?: number; // Remaining seconds for TIMER mode (600 = 10 min)
 }
 
 // Global pieces list (Standard Ubongo has 12 pieces)
@@ -306,8 +312,8 @@ export function flipCellsH(cells: [number, number][]): [number, number][] {
   return normalizeCells(flipped);
 }
 
-// 30 stages programmatically defined to scale difficulty and guarantee 100% solvability
-export const SOLO_BOARDS: Board[] = Array.from({ length: 30 }, (_, index) => {
+// 300 stages programmatically defined to scale difficulty and guarantee 100% solvability
+export const SOLO_BOARDS: Board[] = Array.from({ length: 300 }, (_, index) => {
   const stageNum = index + 1;
   let difficulty: 'EASY' | 'MEDIUM' | 'HARD' = 'EASY';
   if (stageNum > 10 && stageNum <= 20) {

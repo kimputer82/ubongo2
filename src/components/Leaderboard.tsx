@@ -164,8 +164,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 </div>
               </div>
 
-              {/* Real-time Opponent Board Miniature Preview (Only during active rounds) */}
-              {roomState.state === "PLAYING" && playerBoard && !isCurrentPlayer && (
+              {/* Real-time Opponent Board Miniature Preview — disabled in competition mode to prevent cheating */}
+              {roomState.state === "PLAYING" && playerBoard && !isCurrentPlayer && isSolo && (
                 <div className="mt-1 border-t-2 border-high-black/5 pt-2 flex items-center gap-2">
                   <span className="text-[10px] text-high-black/50 font-black uppercase tracking-wider font-mono">MINI BOARD:</span>
                   <div

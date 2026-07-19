@@ -357,6 +357,9 @@ wss.on("connection", (ws: WebSocket) => {
 
           // Create new player object
           const isHost = room.state.players.length === 0;
+          const isSolo = room.state.gameMode === "SOLO";
+          const isTimer = room.state.gameMode === "TIMER";
+          
           const player: Player = {
             id: playerId,
             name: nameTrimmed,
@@ -371,9 +374,12 @@ wss.on("connection", (ws: WebSocket) => {
             soloSolved: false,
             soloTimer: 120,
             soloCompleted: false,
+            timerRound: 1,
+            timerSolved: 0,
+            timerScore: 0,
           };
 
-          if (room.state.gameMode === "SOLO") {
+          if (isSolo || isTimer) {
             getOrCreateSoloBoard(room, 1);
           }
 

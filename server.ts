@@ -27,7 +27,7 @@ interface RoomContainer {
 
 const rooms = new Map<string, RoomContainer>();
 
-const MASTER_PASSWORD = "1234";
+const MASTER_PASSWORD = process.env.MASTER_PASSWORD || "1234";
 
 // Helper to generate a random 6-character alphanumeric room code
 function generateRoomCode(): string {

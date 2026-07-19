@@ -608,9 +608,12 @@ wss.on("connection", (ws: WebSocket) => {
           const player = room.state.players.find((p) => p.id === currentPlayerId);
           if (!player) return;
 
-          if (room.state.gameMode === "SOLO") {
-            const soloRound = player.soloRound || 1;
-            const board = getOrCreateSoloBoard(room, soloRound);
+          if (room.state.gameMode === "SOLO" || room.state.gameMode === "TIMER") {
+            const isTimer = room.state.gameMode === "TIMER";
+            const currentRound = isTimer ? (player.timerRound || 1) : (player.soloRound || 1);
+            const board = isTimer 
+              ? (room.state.soloBoards ? room.state.soloBoards[currentRound - 1] : undefined)
+              : getOrCreateSoloBoard(room, currentRound);
             if (!board) return;
 
             const clientPieces: PlacedPiece[] = payload.placedPieces || [];
@@ -620,14 +623,17 @@ wss.on("connection", (ws: WebSocket) => {
               player.soloSolved = true;
               
               // Calculate score
-              const timeTakenSeconds = payload.timeTakenSeconds || 0;
-              const scoreEarned = 100 + Math.max(0, 120 - Math.floor(timeTakenSeconds)) * 2;
+              let scoreEarned = 100;
+              if (!isTimer) {
+                const timeTakenSeconds = payload.timeTakenSeconds || 0;
+                scoreEarned = 100 + Math.max(0, 120 - Math.floor(timeTakenSeconds)) * 2;
+              }
               player.score += scoreEarned;
 
               ws.send(JSON.stringify({
                 type: "solo-solve-success",
                 payload: {
-                  round: soloRound,
+                  round: currentRound,
                   scoreEarned,
                   totalScore: player.score,
                 }

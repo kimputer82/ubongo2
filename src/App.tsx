@@ -46,6 +46,12 @@ export default function App() {
 
   const socketRef = useRef<WebSocket | null>(null);
   const prevTimerRef = useRef<number>(120);
+  const roomStateRef = useRef<RoomState | null>(null);
+
+  // Keep roomStateRef synced with roomState
+  useEffect(() => {
+    roomStateRef.current = roomState;
+  }, [roomState]);
 
   // Drag State & Refs for Pointer-Tracking & Snap Engine
   const [dragState, setDragState] = useState<{
@@ -207,10 +213,18 @@ export default function App() {
             break;
           case "solo-solve-success":
             if (!muted) synth.playSuccess();
-            // 30% chance for Lucky Box Modal!
-            if (Math.random() < 0.3) {
-              setLuckyBoxRevealed(null);
-              setLuckyBoxOpen(true);
+            // Check if timer mode is active (based on current roomState)
+            {
+              const isTimer = roomStateRef.current?.gameMode === "TIMER";
+              if (Math.random() < 0.3) {
+                setLuckyBoxRevealed(null);
+                setLuckyBoxOpen(true);
+              } else if (isTimer) {
+                // If it is timer mode and no lucky box, auto-advance after 1.2 seconds delay
+                setTimeout(() => {
+                  handleNextTimerStage();
+                }, 1200);
+              }
             }
             break;
           case "error":
@@ -1554,6 +1568,9 @@ export default function App() {
                       onClick={() => {
                         setLuckyBoxOpen(false);
                         setLuckyBoxRevealed(null);
+                        if (isTimerMode) {
+                          handleNextTimerStage();
+                        }
                       }}
                       className="high-button-white w-full py-3.5 text-xs font-black cursor-pointer"
                     >

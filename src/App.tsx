@@ -106,7 +106,14 @@ export default function App() {
         }
       }
     }
-  }, [roomState?.currentBoardId, roomState?.state, roomState?.gameMode, playerId, roomState?.players.find((p) => p.id === playerId)?.soloRound, roomState?.players.find((p) => p.id === playerId)?.timerRound]);
+  }, [
+    roomState?.currentBoardId,
+    roomState?.state,
+    roomState?.gameMode,
+    playerId,
+    roomState?.players.find((p) => p.id === playerId)?.soloRound,
+    roomState?.players.find((p) => p.id === playerId)?.timerRound
+  ]);
 
   // Handle local Solo Mode Timer countdown
   useEffect(() => {

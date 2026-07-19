@@ -236,15 +236,16 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
       {/* Grid Container — position:relative so floating overlay is anchored here */}
       <div
         ref={gridContainerRef}
-        className="relative p-8 bg-high-alpha rounded-[24px] border-2 border-high-black"
+        className="relative p-8 bg-high-alpha rounded-[24px] border-2 border-high-black w-full flex justify-center"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
         <div
-          className="grid gap-2 select-none"
+          className="grid gap-2 select-none w-full"
           style={{
             gridTemplateRows: `repeat(${height}, minmax(0, 1fr))`,
             gridTemplateColumns: `repeat(${width}, minmax(0, 1fr))`,
+            maxWidth: `${width * 56}px`, // Max cell size ~56px on large screens, scales down dynamically
           }}
         >
           {Array.from({ length: height }).map((_, rIdx) =>
@@ -264,7 +265,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
                   onMouseEnter={() => setHoveredCell({ r: rIdx, c: cIdx })}
                   onClick={() => handleCellClick(rIdx, cIdx)}
                   className={`
-                    w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer
+                    w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer
                     ${
                       !isTarget
                         ? "bg-transparent text-transparent" // off-grid

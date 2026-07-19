@@ -766,6 +766,7 @@ wss.on("connection", (ws: WebSocket) => {
           player.timerRound = nextRound;
           player.timerSolved = (player.timerSolved || 0) + 1;
           player.placedPieces = [];
+          player.soloSolved = false;
 
           // Ensure a board exists for this round (random difficulty)
           if (!room.state.soloBoards) room.state.soloBoards = [];

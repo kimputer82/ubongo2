@@ -62,8 +62,8 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
                 isPlaced
                   ? "bg-high-alpha border-high-black/10 opacity-40 cursor-pointer"
                   : isSelected
-                  ? "bg-art-accent/15 border-high-black shadow-[4px_4px_0px_#18181b] ring-4 ring-high-black/10"
-                  : "bg-high-surface border-high-black hover:bg-high-alpha shadow-[3px_3px_0px_#18181b] hover:shadow-[1px_1px_0px_#18181b]"
+                  ? "bg-art-accent/15 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.15)] ring-4 ring-high-black/10"
+                  : "bg-high-surface border-high-black hover:bg-high-alpha shadow-[3px_3px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.08)]"
               }`}
             >
               {/* Placement badge */}

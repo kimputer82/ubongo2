@@ -76,7 +76,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               layoutId={`player-${player.id}`}
               className={`relative flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all duration-300 ${
                 isCurrentPlayer
-                  ? "bg-art-accent/15 border-high-black shadow-[3px_3px_0px_#18181b]"
+                  ? "bg-art-accent/15 border-high-black shadow-[3px_3px_8px_rgba(0,0,0,0.12)]"
                   : (isSolo ? (player.soloSolved ? "bg-emerald-50 border-emerald-600" : "bg-high-surface border-high-black/20") : (hasSolved ? "bg-emerald-50 border-2 border-emerald-600 shadow-sm" : "bg-high-surface border-high-black/20"))
               }`}
             >

@@ -69,7 +69,7 @@ export const Lobby: React.FC<LobbyProps> = ({
           transition={{ duration: 0.5 }}
           className="text-center mb-6"
         >
-          <div className="inline-block bg-high-black text-white text-[10px] px-3.5 py-1.5 rounded-full font-black uppercase tracking-widest mb-3 border-2 border-high-black shadow-[2px_2px_0px_#18181b]">
+          <div className="inline-block bg-high-black text-white text-[10px] px-3.5 py-1.5 rounded-full font-black uppercase tracking-widest mb-3 border-2 border-high-black shadow-[2px_4px_8px_rgba(0,0,0,0.15)]">
             REAL-TIME MULTIPLAYER BOARD GAME
           </div>
           <h1 className="text-4xl sm:text-5xl font-display font-black tracking-tight text-high-black mb-2">
@@ -163,7 +163,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 }}
                 className={`w-full py-4 rounded-2xl font-black text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${
                   studentNickname.trim() && studentRoomCode.length === 6
-                    ? "bg-high-black text-white border-4 border-high-black shadow-[4px_4px_0px_#18181b] hover:bg-zinc-800 hover:shadow-[5px_5px_0px_#18181b] active:translate-y-[3px] active:shadow-none"
+                    ? "bg-high-black text-white border-4 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.18)] hover:bg-zinc-800 hover:shadow-[5px_5px_12px_rgba(0,0,0,0.22)] active:translate-y-[2px] active:shadow-sm"
                     : "bg-high-alpha border-2 border-high-black/25 text-high-black/30 cursor-not-allowed"
                 }`}
               >
@@ -268,7 +268,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 }}
                 className={`w-full py-4 mt-2 rounded-2xl font-black text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer ${
                   !isCreating && teacherName.trim() && teacherPassword.trim()
-                    ? "bg-high-black text-white border-4 border-high-black shadow-[4px_4px_0px_#18181b] hover:bg-zinc-800 hover:shadow-[5px_5px_0px_#18181b] active:translate-y-[3px] active:shadow-none"
+                    ? "bg-high-black text-white border-4 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.18)] hover:bg-zinc-800 hover:shadow-[5px_5px_12px_rgba(0,0,0,0.22)] active:translate-y-[2px] active:shadow-sm"
                     : "bg-high-alpha border-2 border-high-black/25 text-high-black/30 cursor-not-allowed"
                 }`}
               >
@@ -332,7 +332,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 </span>
                 <button
                   onClick={handleCopyCode}
-                  className="mt-1 flex items-center gap-2 px-4 py-2 bg-high-surface border-4 border-high-black rounded-2xl text-high-black font-mono font-black tracking-wider text-sm shadow-[3px_3px_0px_#18181b] hover:shadow-[1px_1px_0px_#18181b] transition-all cursor-pointer hover:bg-high-alpha active:translate-y-0.5 font-mono"
+                  className="mt-1 flex items-center gap-2 px-4 py-2 bg-high-surface border-4 border-high-black rounded-2xl text-high-black font-mono font-black tracking-wider text-sm shadow-[3px_3px_8px_rgba(0,0,0,0.15)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition-all cursor-pointer hover:bg-high-alpha active:translate-y-0.5 font-mono"
                   style={{ fontFamily: 'var(--font-mono)' }}
                 >
                   {roomState.code}
@@ -410,7 +410,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                           synth.playClick();
                           onAddBot();
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-50 border-2 border-high-black rounded-2xl text-purple-900 shadow-[2px_2px_0px_#18181b] hover:shadow-[1px_1px_0px_#18181b] hover:bg-purple-100 text-xs font-black transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-50 border-2 border-high-black rounded-2xl text-purple-900 shadow-[2px_4px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_2px_4px_rgba(0,0,0,0.08)] hover:bg-purple-100 text-xs font-black transition-all cursor-pointer"
                       >
                         <Bot className="w-4 h-4 text-purple-800" /> AI 봇 참가시키기
                       </button>
@@ -434,7 +434,7 @@ export const Lobby: React.FC<LobbyProps> = ({
                 }}
                 className={`flex-1 py-4.5 rounded-2xl font-black text-sm tracking-wide transition-all cursor-pointer ${
                   self?.isReady
-                    ? "bg-emerald-100 border-4 border-high-black text-emerald-900 shadow-[3px_3px_0px_#18181b] active:translate-y-0.5"
+                    ? "bg-emerald-100 border-4 border-high-black text-emerald-900 shadow-[3px_3px_8px_rgba(0,0,0,0.12)] active:translate-y-0.5"
                     : "high-button-white"
                 }`}
               >

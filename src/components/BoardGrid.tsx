@@ -237,7 +237,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
       {/* Grid Container — position:relative so floating overlay is anchored here */}
       <div
         ref={gridContainerRef}
-        className="relative p-6 bg-high-alpha rounded-[24px] border-2 border-high-black"
+        className="relative p-8 bg-high-alpha rounded-[24px] border-2 border-high-black"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -265,10 +265,10 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
                   onMouseEnter={() => setHoveredCell({ r: rIdx, c: cIdx })}
                   onClick={() => handleCellClick(rIdx, cIdx)}
                   className={`
-                    w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer
+                    w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer
                     ${
                       !isTarget
-                        ? "bg-transparent text-transparent pointer-events-none" // off-grid
+                        ? "bg-transparent text-transparent" // off-grid
                         : placed && pieceInfo
                         ? `${pieceInfo.color} border-2 border-high-black text-white shadow-[inset_0_4px_0_rgba(255,255,255,0.4)] font-black text-lg` // covered by placed piece
                         : isGhost && activePieceInfo

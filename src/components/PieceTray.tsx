@@ -14,6 +14,7 @@ interface PieceTrayProps {
   placedPieceIds: number[];
   onSelect: (pieceId: number) => void;
   rotatedCells: { [key: number]: [number, number][] };
+  onDragStart?: (pieceId: number, e: React.PointerEvent) => void;
 }
 
 export const PieceTray: React.FC<PieceTrayProps> = ({
@@ -22,6 +23,7 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
   placedPieceIds,
   onSelect,
   rotatedCells,
+  onDragStart,
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -30,7 +32,7 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
           사용 가능한 조각 (YOUR TRAY)
         </h3>
         <span className="text-[10px] text-high-black/40 font-bold uppercase tracking-wider font-mono">
-          *클릭 후 보드에 배치하세요
+          *클릭 또는 드래그하여 배치하세요
         </span>
       </div>
 
@@ -52,18 +54,22 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
           return (
             <motion.button
               key={pId}
-              onClick={() => {
+              onPointerDown={(e) => {
+                if (isPlaced) return;
                 synth.playClick();
                 onSelect(pId);
+                if (onDragStart) {
+                  onDragStart(pId, e);
+                }
               }}
               whileHover={{ scale: isPlaced ? 1 : 1.03 }}
               whileTap={{ scale: isPlaced ? 1 : 0.98 }}
-              className={`relative flex flex-col items-center justify-between p-4 h-36 rounded-2xl border-2 transition-all duration-300 ${
+              className={`relative flex flex-col items-center justify-between p-4 h-36 rounded-2xl border-2 transition-all duration-300 touch-none select-none ${
                 isPlaced
-                  ? "bg-high-alpha border-high-black/10 opacity-40 cursor-pointer"
+                  ? "bg-high-alpha border-high-black/10 opacity-40 cursor-default"
                   : isSelected
-                  ? "bg-art-accent/15 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.15)] ring-4 ring-high-black/10"
-                  : "bg-high-surface border-high-black hover:bg-high-alpha shadow-[3px_3px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.08)]"
+                  ? "bg-art-accent/15 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.15)] ring-4 ring-high-black/10 cursor-grab active:cursor-grabbing"
+                  : "bg-high-surface border-high-black hover:bg-high-alpha shadow-[3px_3px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.08)] cursor-grab active:cursor-grabbing"
               }`}
             >
               {/* Placement badge */}

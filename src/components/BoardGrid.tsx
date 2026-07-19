@@ -109,17 +109,8 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
     }
   }
 
-  // Handle cell clicks
+  // Handle cell clicks / pointer up placements
   const handleCellClick = (r: number, c: number) => {
-    // First check if there is an already placed piece on the clicked cell.
-    // If so, remove/retrieve it regardless of whether a piece is selected.
-    const covering = getCoveringPiece(r, c);
-    if (covering) {
-      onRemovePiece(covering.pieceId);
-      synth.playClick();
-      return;
-    }
-
     if (selectedPieceId !== null) {
       // Trying to PLACE the selected piece
       if (isValidPlacement && anchorCell) {
@@ -128,6 +119,16 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
       } else {
         synth.playClick(); // play error-ish click
       }
+      return;
+    }
+
+    // First check if there is an already placed piece on the clicked cell.
+    // If so, remove/retrieve it.
+    const covering = getCoveringPiece(r, c);
+    if (covering) {
+      onRemovePiece(covering.pieceId);
+      synth.playClick();
+      return;
     }
   };
 
@@ -263,7 +264,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({
                   key={`${rIdx}-${cIdx}`}
                   data-cell={`${rIdx}-${cIdx}`}
                   onMouseEnter={() => setHoveredCell({ r: rIdx, c: cIdx })}
-                  onClick={() => handleCellClick(rIdx, cIdx)}
+                  onPointerUp={() => handleCellClick(rIdx, cIdx)}
                   className={`
                     w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-150 cursor-pointer
                     ${

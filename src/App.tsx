@@ -47,6 +47,34 @@ export default function App() {
   const socketRef = useRef<WebSocket | null>(null);
   const prevTimerRef = useRef<number>(120);
 
+  // Drag State & Refs for Pointer-Tracking & Snap Engine
+  const [dragState, setDragState] = useState<{
+    pieceId: number | null;
+    isDragging: boolean;
+    x: number;
+    y: number;
+  }>({
+    pieceId: null,
+    isDragging: false,
+    x: 0,
+    y: 0,
+  });
+
+  const floatingRef = useRef<HTMLDivElement>(null);
+  const pointerPosRef = useRef({ x: 0, y: 0 });
+
+  const handleDragStart = (pieceId: number, e: React.PointerEvent) => {
+    e.preventDefault();
+    pointerPosRef.current = { x: e.clientX, y: e.clientY };
+    setDragState({
+      pieceId,
+      isDragging: true,
+      x: e.clientX,
+      y: e.clientY,
+    });
+    setSelectedPieceId(pieceId);
+  };
+
   // Initialize piece cells when a new board starts
   useEffect(() => {
     if (roomState && roomState.state === "PLAYING") {
@@ -234,6 +262,51 @@ export default function App() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedPieceId, rotatedCells, muted]);
+
+  // Drag-and-drop pointer tracking & rotation listeners
+  useEffect(() => {
+    if (!dragState.isDragging || dragState.pieceId === null) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      pointerPosRef.current = { x: e.clientX, y: e.clientY };
+      if (floatingRef.current) {
+        floatingRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      setDragState((prev) => ({ ...prev, isDragging: false, pieceId: null }));
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      rotateSelected();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        rotateSelected();
+      }
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("contextmenu", handleContextMenu, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Initial position sync
+    if (floatingRef.current) {
+      floatingRef.current.style.transform = `translate3d(${pointerPosRef.current.x}px, ${pointerPosRef.current.y}px, 0) translate(-50%, -50%)`;
+    }
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [dragState.isDragging, dragState.pieceId, rotatedCells, selectedPieceId]);
 
   // Rotate selected piece clockwise 90 degrees
   const rotateSelected = () => {
@@ -1023,6 +1096,7 @@ export default function App() {
                             }
                           }}
                           rotatedCells={rotatedCells}
+                          onDragStart={handleDragStart}
                         />
                       </div>
                     </div>
@@ -1247,6 +1321,7 @@ export default function App() {
                         }
                       }}
                       rotatedCells={rotatedCells}
+                      onDragStart={handleDragStart}
                     />
                   </div>
                 </div>
@@ -1498,6 +1573,54 @@ export default function App() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Floating Drag Layer (Pointer-Tracking Snap Engine) */}
+      {dragState.isDragging && dragState.pieceId !== null && (
+        <div
+          ref={floatingRef}
+          className="fixed pointer-events-none z-[9999] opacity-60 transition-none"
+          style={{
+            left: 0,
+            top: 0,
+            transform: `translate3d(${dragState.x}px, ${dragState.y}px, 0) translate(-50%, -50%)`,
+          }}
+        >
+          {(() => {
+            const piece = PIECES.find((p) => p.id === dragState.pieceId);
+            const cells = rotatedCells[dragState.pieceId] || piece?.cells || [];
+            if (!piece || cells.length === 0) return null;
+
+            const maxR = Math.max(...cells.map(([r]) => r));
+            const maxC = Math.max(...cells.map(([_, c]) => c));
+            const rows = maxR + 1;
+            const cols = maxC + 1;
+
+            return (
+              <div
+                className="grid gap-1.5 bg-high-surface p-3.5 rounded-2xl border-4 border-high-black shadow-[6px_6px_12px_rgba(0,0,0,0.25)]"
+                style={{
+                  gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+                  gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                }}
+              >
+                {Array.from({ length: rows }).map((_, rIdx) =>
+                  Array.from({ length: cols }).map((_, cIdx) => {
+                    const isPart = cells.some(([r, c]) => r === rIdx && c === cIdx);
+                    return (
+                      <div
+                        key={`${rIdx}-${cIdx}`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg border-2 border-high-black ${
+                          isPart ? `${piece.color}` : "bg-transparent border-transparent"
+                        }`}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }

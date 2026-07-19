@@ -1,0 +1,6 @@
+{
+  "name": "Ubongo Online",
+  "description": "실시간 멀티플레이어로 즐기는 온라인 우봉고 퍼즐 게임. 친구들과 방 코드로 매칭하거나 봇과 함께 두뇌 경쟁을 펼치세요!",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

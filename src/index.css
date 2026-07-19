@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-high-bg: #fafafa;
+  --color-high-surface: #ffffff;
+  --color-high-black: #18181b;
+  --color-high-alpha: rgba(0, 0, 0, 0.05);
+  
+  /* Retain colorful pops for pieces or success, but under a high-contrast theme */
+  --color-art-accent: #ffcc00;
+  --color-art-solved: #10b981;
+}
+
+body {
+  background-color: #fafafa;
+  color: #18181b;
+  font-family: var(--font-sans);
+  user-select: none;
+}
+
+/* Ensure text inputs can be selected */
+input, textarea {
+  user-select: text !important;
+}
+
+/* Children-friendly Korean text wrapping */
+.korean-wrap {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 4px solid borders for extreme structural clarity */
+.high-border {
+  border: 4px solid #18181b;
+}
+
+.high-border-sm {
+  border: 2px solid #18181b;
+}
+
+/* Beautiful solid shadow effect */
+.high-shadow {
+  box-shadow: 6px 6px 0px 0px #18181b;
+}
+
+.high-shadow-sm {
+  box-shadow: 3px 3px 0px 0px #18181b;
+}
+
+/* Comic-styled high-contrast active button */
+.high-button-primary {
+  background-color: #18181b;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 900;
+  border-radius: 20px;
+  border: 4px solid #18181b;
+  box-shadow: 4px 4px 0px 0px #18181b;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.high-button-primary:hover {
+  background-color: #27272a;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #18181b;
+}
+
+.high-button-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px 0px #18181b;
+}
+
+/* Yellow accent secondary button */
+.high-button-accent {
+  background-color: #ffcc00;
+  color: #18181b;
+  font-family: var(--font-display);
+  font-weight: 900;
+  border-radius: 20px;
+  border: 4px solid #18181b;
+  box-shadow: 4px 4px 0px 0px #18181b;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.high-button-accent:hover {
+  background-color: #ffe066;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #18181b;
+}
+
+.high-button-accent:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px 0px #18181b;
+}
+
+/* White/Surface styled auxiliary button */
+.high-button-white {
+  background-color: #ffffff;
+  color: #18181b;
+  font-family: var(--font-display);
+  font-weight: 800;
+  border-radius: 20px;
+  border: 4px solid #18181b;
+  box-shadow: 4px 4px 0px 0px #18181b;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.high-button-white:hover {
+  background-color: #f4f4f5;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #18181b;
+}
+
+.high-button-white:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0px 0px 0px 0px #18181b;
+}
+

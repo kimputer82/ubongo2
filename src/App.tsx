@@ -159,10 +159,10 @@ export default function App() {
         if (!muted) {
           synth.playSuccess();
         }
-        // Auto dismiss after 4.5 seconds
+        // Auto dismiss after 2.2 seconds (half of original 4.5s)
         const t = setTimeout(() => {
           setShowSolveEffect(false);
-        }, 4500);
+        }, 2200);
         return () => clearTimeout(t);
       } else if (!currentFirstSolved) {
         setShowSolveEffect(false);
@@ -1056,6 +1056,31 @@ export default function App() {
                                     <FlipHorizontal className="w-3.5 h-3.5 text-high-black" /> 대칭 (F)
                                   </button>
                                 </div>
+                                {/* Reset Board button */}
+                                <button
+                                  onClick={handleResetBoard}
+                                  className="high-button-white w-full py-4 text-xs flex items-center justify-center gap-2 cursor-pointer text-red-600 hover:text-red-700 mb-2"
+                                >
+                                  <RefreshCw className="w-4 h-4" /> 보드 전체 초기화 (Reset)
+                                </button>
+
+                                {/* Piece Tray (Moved to Right Sidebar) */}
+                                <div className="bg-high-alpha border-2 border-high-black p-3.5 rounded-[20px]">
+                                  <PieceTray
+                                    pieceIds={activeBoard.solutionPieceIds}
+                                    selectedPieceId={selectedPieceId}
+                                    placedPieceIds={placedPieces.map((p) => p.pieceId)}
+                                    onSelect={(pId) => {
+                                      if (selectedPieceId === pId) {
+                                        setSelectedPieceId(null);
+                                      } else {
+                                        setSelectedPieceId(pId);
+                                      }
+                                    }}
+                                    rotatedCells={rotatedCells}
+                                    onDragStart={handleDragStart}
+                                  />
+                                </div>
                               </>
                             ) : (
                               <div className="flex flex-col items-center justify-center p-4 korean-wrap">
@@ -1071,33 +1096,7 @@ export default function App() {
                               </div>
                             )}
                           </div>
-
-                          {/* Reset Board button */}
-                          <button
-                            onClick={handleResetBoard}
-                            className="high-button-white w-full py-4 text-xs flex items-center justify-center gap-2 cursor-pointer text-red-600 hover:text-red-700"
-                          >
-                            <RefreshCw className="w-4 h-4" /> 보드 전체 초기화 (Reset)
-                          </button>
                         </div>
-                      </div>
-
-                      {/* Piece Tray */}
-                      <div className="bg-high-alpha border-4 border-high-black p-6 rounded-[24px]">
-                        <PieceTray
-                          pieceIds={activeBoard.solutionPieceIds}
-                          selectedPieceId={selectedPieceId}
-                          placedPieceIds={placedPieces.map((p) => p.pieceId)}
-                          onSelect={(pId) => {
-                            if (selectedPieceId === pId) {
-                              setSelectedPieceId(null);
-                            } else {
-                              setSelectedPieceId(pId);
-                            }
-                          }}
-                          rotatedCells={rotatedCells}
-                          onDragStart={handleDragStart}
-                        />
                       </div>
                     </div>
                   </motion.div>
@@ -1295,34 +1294,33 @@ export default function App() {
                             </p>
                           </div>
                         )}
+                        {/* Reset Board button */}
+                        <button
+                          onClick={handleResetBoard}
+                          className="high-button-white w-full py-4 text-xs flex items-center justify-center gap-2 cursor-pointer text-red-600 hover:text-red-700 mb-2"
+                        >
+                          <RefreshCw className="w-4 h-4" /> 보드 전체 초기화 (Reset)
+                        </button>
+
+                        {/* Piece Tray (Moved to Right Sidebar) */}
+                        <div className="bg-high-alpha border-2 border-high-black p-3.5 rounded-[20px]">
+                          <PieceTray
+                            pieceIds={activeBoard.solutionPieceIds}
+                            selectedPieceId={selectedPieceId}
+                            placedPieceIds={placedPieces.map((p) => p.pieceId)}
+                            onSelect={(pId) => {
+                              if (selectedPieceId === pId) {
+                                setSelectedPieceId(null);
+                              } else {
+                                setSelectedPieceId(pId);
+                              }
+                            }}
+                            rotatedCells={rotatedCells}
+                            onDragStart={handleDragStart}
+                          />
+                        </div>
                       </div>
-
-                      {/* Reset Workspace button */}
-                      <button
-                        onClick={handleResetBoard}
-                        className="high-button-white w-full py-4 text-xs flex items-center justify-center gap-2 cursor-pointer text-red-600 hover:text-red-700"
-                      >
-                        <RefreshCw className="w-4 h-4" /> 보드 전체 초기화 (Reset)
-                      </button>
                     </div>
-                  </div>
-
-                  {/* Bottom Piece Tray */}
-                  <div className="bg-high-alpha border-4 border-high-black p-6 rounded-[24px]">
-                    <PieceTray
-                      pieceIds={activeBoard.solutionPieceIds}
-                      selectedPieceId={selectedPieceId}
-                      placedPieceIds={placedPieces.map((p) => p.pieceId)}
-                      onSelect={(pId) => {
-                        if (selectedPieceId === pId) {
-                          setSelectedPieceId(null);
-                        } else {
-                          setSelectedPieceId(pId);
-                        }
-                      }}
-                      rotatedCells={rotatedCells}
-                      onDragStart={handleDragStart}
-                    />
                   </div>
                 </div>
               </motion.div>
@@ -1542,6 +1540,14 @@ export default function App() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="bg-white border-8 border-high-black rounded-[48px] p-10 max-w-lg w-full text-center high-shadow flex flex-col items-center gap-6 relative overflow-hidden"
               >
+                {/* Manual close button */}
+                <button
+                  onClick={() => setShowSolveEffect(false)}
+                  className="absolute top-6 right-6 w-9 h-9 flex items-center justify-center bg-high-surface hover:bg-high-alpha border-2 border-high-black rounded-xl text-high-black font-black text-base cursor-pointer shadow-sm z-50 transition-all active:scale-95"
+                  title="닫기"
+                >
+                  ✕
+                </button>
                 {/* Decorative retro border bars */}
                 <div className="absolute top-0 left-0 right-0 h-4 bg-high-black" />
                 <div className="absolute bottom-0 left-0 right-0 h-4 bg-high-black" />

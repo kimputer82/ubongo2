@@ -36,7 +36,7 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         {pieceIds.map((pId) => {
           const piece = PIECES.find((p) => p.id === pId);
           if (!piece) return null;
@@ -62,27 +62,27 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
                   onDragStart(pId, e);
                 }
               }}
-              whileHover={{ scale: isPlaced ? 1 : 1.03 }}
+              whileHover={{ scale: isPlaced ? 1 : 1.02 }}
               whileTap={{ scale: isPlaced ? 1 : 0.98 }}
-              className={`relative flex flex-col items-center justify-between p-4 h-36 rounded-2xl border-2 transition-all duration-300 touch-none select-none ${
+              className={`relative flex flex-col items-center justify-between p-2 h-24 sm:h-28 rounded-xl border transition-all duration-300 touch-none select-none ${
                 isPlaced
                   ? "bg-high-alpha border-high-black/10 opacity-40 cursor-default"
                   : isSelected
-                  ? "bg-art-accent/15 border-high-black shadow-[4px_4px_10px_rgba(0,0,0,0.15)] ring-4 ring-high-black/10 cursor-grab active:cursor-grabbing"
-                  : "bg-high-surface border-high-black hover:bg-high-alpha shadow-[3px_3px_8px_rgba(0,0,0,0.12)] hover:shadow-[1px_1px_4px_rgba(0,0,0,0.08)] cursor-grab active:cursor-grabbing"
+                  ? "bg-art-accent/15 border-high-black shadow-[2px_2px_6px_rgba(0,0,0,0.15)] ring-2 ring-high-black/10 cursor-grab active:cursor-grabbing"
+                  : "bg-high-surface border-high-black/40 hover:bg-high-alpha shadow-[2px_2px_4px_rgba(0,0,0,0.1)] hover:shadow-[1px_1px_2px_rgba(0,0,0,0.06)] cursor-grab active:cursor-grabbing"
               }`}
             >
               {/* Placement badge */}
               {isPlaced && (
-                <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-emerald-100 border-2 border-emerald-600 text-emerald-800 text-[9px] font-black rounded-lg uppercase tracking-widest font-mono">
+                <div className="absolute top-1 right-1 px-1 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-800 text-[8px] font-black rounded uppercase tracking-widest font-mono">
                   PLACED
                 </div>
               )}
 
               {/* Centered Piece Shape Preview */}
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center mt-1">
                 <div
-                  className="grid gap-1"
+                  className="grid gap-0.5"
                   style={{
                     gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
                     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
@@ -94,9 +94,9 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
                       return (
                         <div
                           key={`${rIdx}-${cIdx}`}
-                          className={`w-4 h-4 rounded-md transition-all duration-300 ${
+                          className={`w-3.5 h-3.5 rounded transition-all duration-300 ${
                             isPart
-                              ? `${piece.color} border border-black/20 shadow-[inset_0_2px_0_rgba(255,255,255,0.4)]`
+                              ? `${piece.color} border border-black/20 shadow-[inset_0_1.5px_0_rgba(255,255,255,0.4)]`
                               : "bg-transparent"
                           }`}
                         />
@@ -107,9 +107,9 @@ export const PieceTray: React.FC<PieceTrayProps> = ({
               </div>
 
               {/* Footer Label */}
-              <div className="mt-2 text-center korean-wrap">
+              <div className="mt-1 text-center korean-wrap">
                 <span
-                  className={`text-xs font-black uppercase tracking-wider ${
+                  className={`text-[10px] font-black uppercase tracking-wider ${
                     isPlaced ? "text-high-black/30" : isSelected ? "text-high-black underline decoration-art-accent decoration-2" : "text-high-black"
                   }`}
                 >
